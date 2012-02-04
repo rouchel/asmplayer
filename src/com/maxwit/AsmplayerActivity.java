@@ -9,7 +9,6 @@ import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.HashMap;
-
 import android.app.Activity;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -81,7 +80,6 @@ class MediaFile {
 	}
 
 	class HttpDownload extends Thread {
-
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
