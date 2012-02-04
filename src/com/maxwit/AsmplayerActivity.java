@@ -64,6 +64,7 @@ class MediaFile {
 		url = new URL(downUrl);
 		file = new File(path);
 		file.createNewFile();
+		file.setReadable(true, false);
 		rAccessFile = new RandomAccessFile(file, "rw");
 		isUsed = true;
 		download = new HttpDownload();
@@ -191,7 +192,7 @@ public class AsmplayerActivity extends Activity implements Callback {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				url = urlEdit.getText().toString();
-				path = "/data/tmp/__mediafile";
+				path = "/data/tmp/__mediafile.mp4";
 				playStart();
 			}
 		});
@@ -207,11 +208,16 @@ public class AsmplayerActivity extends Activity implements Callback {
 		try {
 			mediaFile = new MediaFile(url, path);
 			mediaFile.getFile();
-			Thread.sleep(100000);
-			holder.setFixedSize(mediaPlayer.getVideoWidth(),
-					mediaPlayer.getVideoHeight());
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+//			holder.setFixedSize(mediaPlayer.getVideoWidth(),
+//					mediaPlayer.getVideoHeight());
 			mediaPlayer.setDataSource(path);
-			mediaPlayer.prepareAsync();
+			mediaPlayer.prepare();
 			mediaPlayer.start();
 		}catch (UnknownHostException e1) {
 			// TODO Auto-generated catch block
@@ -224,9 +230,6 @@ public class AsmplayerActivity extends Activity implements Callback {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
