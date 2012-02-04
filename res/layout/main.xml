@@ -4,8 +4,33 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <VideoView
-        android:id="@+id/videoView"
+    <SurfaceView
+        android:id="@+id/surfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.53" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <EditText
+            android:id="@+id/urlEdit"
+            android:layout_width="272dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.53" />
+
+        <Button
+            android:id="@+id/playButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Play" />
+
+    </LinearLayout>
+
+    <SeekBar
+        android:id="@+id/seekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
