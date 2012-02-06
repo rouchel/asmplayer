@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+
 import android.app.Activity;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -21,9 +22,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
 class MediaFile {
-
 	URL url;
 	File file;
 	RandomAccessFile rAccessFile;
@@ -113,24 +114,29 @@ class SyncSeekbar extends Thread {
 	SeekBar seekBar;
 	int max;
 	int old;
+	boolean status;
+	EditText time;
 
-	public SyncSeekbar(MediaPlayer mp, SeekBar bar) {
+	public SyncSeekbar(MediaPlayer mp, SeekBar bar, EditText timeView) {
 		mediaPlayer = mp;
 		seekBar = bar;
 		max = 0;
 		old = 0;
+		status = true;
+		time = timeView;
 	}
 
+	public void setStatus(boolean s) {
+		status = s;
+	}
 	@Override
 	public void run() {
 		int cur;
-
 		// TODO Auto-generated method stub
 		super.run();
-
 		// TODO:
 		while (true) {
-			if (mediaPlayer.isPlaying()) {
+			if (mediaPlayer.isPlaying() && status) {
 				if (max != mediaPlayer.getDuration()) {
 					max = mediaPlayer.getDuration();
 					seekBar.setMax(max);
@@ -142,9 +148,8 @@ class SyncSeekbar extends Thread {
 					old = cur;
 				}
 			}
-
 			try {
-				Thread.sleep(100);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -153,17 +158,19 @@ class SyncSeekbar extends Thread {
 	}
 }
 
-public class AsmplayerActivity extends Activity implements Callback {
+public class AsmplayerActivity extends Activity implements Callback, OnSeekBarChangeListener {
 	/** Called when the activity is first created. */
 	MediaPlayer mediaPlayer;
 	SurfaceView surface;
 	SurfaceHolder holder;
 	SeekBar seekBar;
+	EditText time;
 	Button playButton;
 	EditText urlEdit;
 	String url;
 	String path;
 	MediaFile mediaFile;
+	SyncSeekbar syncSeekbar;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -174,6 +181,7 @@ public class AsmplayerActivity extends Activity implements Callback {
 		seekBar = (SeekBar) findViewById(R.id.seekBar);
 		urlEdit = (EditText) findViewById(R.id.urlEdit);
 		playButton = (Button) findViewById(R.id.playButton);
+		time = (EditText) findViewById(R.id.textView);
 
 		holder = surface.getHolder();
 		holder.addCallback(this);
@@ -183,7 +191,8 @@ public class AsmplayerActivity extends Activity implements Callback {
 		mediaPlayer.setDisplay(holder);
 		mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
-		SyncSeekbar syncSeekbar = new SyncSeekbar(mediaPlayer, seekBar);
+		time.setVisibility(1);
+		syncSeekbar = new SyncSeekbar(mediaPlayer, seekBar, time);
 		syncSeekbar.start();
 
 		playButton.setOnClickListener(new OnClickListener() {
@@ -196,6 +205,8 @@ public class AsmplayerActivity extends Activity implements Callback {
 				playStart();
 			}
 		});
+
+		seekBar.setOnSeekBarChangeListener(this);
 	}
 
 	private void playStart() {
@@ -209,7 +220,7 @@ public class AsmplayerActivity extends Activity implements Callback {
 			mediaFile = new MediaFile(url, path);
 			mediaFile.getFile();
 			try {
-				Thread.sleep(2000);
+				Thread.sleep(5000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -253,5 +264,25 @@ public class AsmplayerActivity extends Activity implements Callback {
 		// TODO Auto-generated method stub
 		mediaPlayer.stop();
 
+	}
+
+	@Override
+	public void onProgressChanged(SeekBar seekBar, int progress,
+			boolean fromUser) {
+		// TODO Auto-generated method stub
+		time.setText(String.valueOf(mediaPlayer.getCurrentPosition() / 60000) + ":" + String.valueOf(mediaPlayer.getCurrentPosition() / 1000 % 60));
+	}
+
+	@Override
+	public void onStartTrackingTouch(SeekBar seekBar) {
+		// TODO Auto-generated method stub
+		syncSeekbar.setStatus(false);
+	}
+
+	@Override
+	public void onStopTrackingTouch(SeekBar seekBar) {
+		// TODO Auto-generated method stub
+		syncSeekbar.setStatus(true);
+		mediaPlayer.seekTo(seekBar.getProgress());
 	}
 }
